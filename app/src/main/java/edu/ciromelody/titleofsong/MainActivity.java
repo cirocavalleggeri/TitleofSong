@@ -1,9 +1,7 @@
 package edu.ciromelody.titleofsong;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -18,17 +16,25 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Looper;
 import android.util.Log;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
 import android.widget.TextView;
 
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
+
 import java.io.IOException;
-import java.net.URL;
 import java.util.HashMap;
 
 import wseemann.media.FFmpegMediaMetadataRetriever;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends Activity {
     private static final int MY_PERMISSIONS_RECORD_AUDIO =8 ;
     String RADIO_STATION_URL="http://icestreaming.rai.it/3.mp3";
     TextView artista;
@@ -36,6 +42,8 @@ public class MainActivity extends AppCompatActivity {
     Runnable runnable;
     android.media.MediaPlayer mediaplayer;
     Handler handler;
+    Spinner spinner_elenco_radio;
+    TextInputEditText indirizzoWebRadio;
     @Override
     protected void onStop() {
         super.onStop();
@@ -63,6 +71,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        ricavaIndirizzoAlCambiamentoSpinner();
        suonaOnline();
        registraBroadcastREceiver();
 
@@ -88,11 +97,14 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         titolo=findViewById(R.id.id_tx_titolo);
         artista=findViewById(R.id.id_tx_artista);
+        indirizzoWebRadio=findViewById(R.id.textInputEdit);
+        inizializzalistaRadio();
         if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.RECORD_AUDIO )!= PackageManager.PERMISSION_GRANTED){
             ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.RECORD_AUDIO}, MY_PERMISSIONS_RECORD_AUDIO);
         }else {
 
             suonaOnline();
+
             registraBroadcastREceiver();
 
 
@@ -113,7 +125,7 @@ public class MainActivity extends AppCompatActivity {
         //
         AsyncTask.execute(runnable);
 
-
+        ricavaIndirizzoAlCambiamentoSpinner();
 
     }
     private Runnable runnableName= new Runnable() {
@@ -157,6 +169,8 @@ public class MainActivity extends AppCompatActivity {
             artista.setText(artist);}
     }
 private void suonaOnline(){
+    inizializzalistaRadio();
+
         mediaplayer=new MediaPlayer();
     mediaplayer.setAudioAttributes(
             new AudioAttributes.Builder()
@@ -187,6 +201,7 @@ private void suonaOnline(){
     mediaplayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
         @Override
         public void onPrepared(MediaPlayer mp) {
+            if(mp.isPlaying()){mp.stop();}
             mp.start();
 
             ricavaTitoloCanzone();
@@ -238,4 +253,40 @@ private void suonaOnline(){
             artista.setText(artist);
         }
     };
+
+
+    private void inizializzalistaRadio()
+    {
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
+                androidx.appcompat.R.layout.support_simple_spinner_dropdown_item, Dati.vettoreStazioniRadio);
+
+        spinner_elenco_radio=(Spinner)findViewById(R.id.id_spin_titolo);
+        spinner_elenco_radio.setAdapter(adapter);
+        RADIO_STATION_URL =   spinner_elenco_radio.getSelectedItem().toString();
+        indirizzoWebRadio.setText(RADIO_STATION_URL);
+
+    }
+    private int trovaposizionespinnerradio(String vocespinner){
+        for(int i=0;i<Dati.vettoreStazioniRadio.length;i++){
+            Log.d("EDIT","VOCESPINNER:"+vocespinner);
+            Log.d("EDIT",  spinner_elenco_radio.getItemAtPosition(i).toString() +":"+i);
+            if(   spinner_elenco_radio.getItemAtPosition(i).toString().equals(vocespinner)){return i;}
+        }
+        return 0;}
+    private void ricavaIndirizzoAlCambiamentoSpinner(){
+        spinner_elenco_radio.setOnItemSelectedListener(
+                new AdapterView.OnItemSelectedListener() {
+                    public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+
+                        RADIO_STATION_URL = parent.getItemAtPosition(pos).toString();
+
+                         indirizzoWebRadio.setText(RADIO_STATION_URL);
+                        // System.out.println(item.toString());     //prints the text in spinner item.
+                        suonaOnline();
+
+                    }
+                    public void onNothingSelected(AdapterView<?> parent) {
+                    }
+                });
+    }
 }

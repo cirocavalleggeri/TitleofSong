@@ -31,7 +31,15 @@
         android:layout_marginTop="16dp"
         tools:layout_editor_absoluteX="41dp" />
 
+<Spinner
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:id="@+id/id_spin_titolo"
+    android:textSize="21sp"
+    android:layout_marginBottom="16dp"
+    >
 
+</Spinner>
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/textInputLayout"
@@ -42,6 +50,7 @@
         tools:layout_editor_absoluteX="1dp">
 
         <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/textInputEdit"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="indirizzo web radio" />
