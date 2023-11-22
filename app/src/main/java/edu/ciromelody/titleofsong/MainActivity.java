@@ -71,7 +71,7 @@ public class MainActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        ricavaIndirizzoAlCambiamentoSpinner();
+       // ricavaIndirizzoAlCambiamentoSpinner();
        suonaOnline();
        registraBroadcastREceiver();
 
@@ -102,14 +102,28 @@ public class MainActivity extends Activity {
         if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.RECORD_AUDIO )!= PackageManager.PERMISSION_GRANTED){
             ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.RECORD_AUDIO}, MY_PERMISSIONS_RECORD_AUDIO);
         }else {
+            spinner_elenco_radio.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+                    // your code here
+                    RADIO_STATION_URL = parentView.getItemAtPosition(position+1).toString();
 
-            suonaOnline();
+                    indirizzoWebRadio.setText(RADIO_STATION_URL);
+                    suonaOnline();
+                }
+
+                @Override
+                public void onNothingSelected(AdapterView<?> parentView) {
+                    // your code here
+                }
+
+            });
+
 
             registraBroadcastREceiver();
 
 
-            handler = new Handler();
-            handler.post(runnableName);
+             handler = new Handler();
 
         }
 
@@ -118,58 +132,26 @@ public class MainActivity extends Activity {
             @Override
             public void run() {
                 //your action
-                titleOfSong();
+                //LeggiTitoloCanzone.titleOfSong();
             }
         };
         //
         //
         AsyncTask.execute(runnable);
 
-        ricavaIndirizzoAlCambiamentoSpinner();
+       // ricavaIndirizzoAlCambiamentoSpinner();
 
     }
-    private Runnable runnableName= new Runnable() {
-        @Override
-        public void run() {
-            //call function, do something
-            Log.d("Handler", "Running Handler");
-            ricavaTitoloCanzone();
-            handler.postDelayed(runnableName, 2000);//this is the line that makes a runnable repeat itself
 
+    private MediaPlayer.OnPreparedListener miolistenermusic =new MediaPlayer.OnPreparedListener() {
+        @Override
+        public void onPrepared(MediaPlayer mp) {
+            mp.getDuration();
+            mp.start();
         }
     };
-    private void titleOfSong( ) {
-        MediaMetadataRetriever metaRetriever = new MediaMetadataRetriever();
-
-
-
-        try {
-            Uri uri = Uri.parse(RADIO_STATION_URL);
-
-
-
-              /*  metaRetriever.setDataSource(getApplicationContext(),  uri);
-                metaRetriever.setDataSource(RADIO_STATION_URL);
-*/
-                metaRetriever.setDataSource(RADIO_STATION_URL, new HashMap<String, String>());
-
-        }catch (Exception e) {
-            // This will catch any exception, because they are all descended from Exception
-            System.out.println("il titolo  " + e.getMessage());
-            //AsyncTask.execute(runnable);
-
-
-        }
-
-        String artist =  metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
-        String title = metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
-        if(title!=null){
-            titolo.setText(title);}
-        if(artist!=null){
-            artista.setText(artist);}
-    }
 private void suonaOnline(){
-    inizializzalistaRadio();
+   // inizializzalistaRadio();
 
         mediaplayer=new MediaPlayer();
     mediaplayer.setAudioAttributes(
@@ -204,40 +186,14 @@ private void suonaOnline(){
             if(mp.isPlaying()){mp.stop();}
             mp.start();
 
-            ricavaTitoloCanzone();
+           // LeggiTitoloCanzone.ricavaTitoloCanzone();
         }
 
 
     });
     //mediaplayer.start();
 }
-    private void ricavaTitoloCanzone() {
-        if (mediaplayer.isPlaying()){
-        FFmpegMediaMetadataRetriever mmr = new FFmpegMediaMetadataRetriever();
-        mmr.setDataSource(RADIO_STATION_URL);
-        String datoGenerico= mmr.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_ALBUM);
-        String artist= mmr.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_AUDIO_CODEC);
 
-        //Log.d("Music",mmr.extractMetadata(FFmpegMediaMetadataRetriever.METADATA_KEY_ALBUM));
-        Bitmap b = mmr.getFrameAtTime(2000000, FFmpegMediaMetadataRetriever.OPTION_CLOSEST); // frame at 2 seconds
-        byte [] artwork = mmr.getEmbeddedPicture();
-        if(artist!=null){
-           artista.setText(artist);
-             }
-        if(datoGenerico!=null){
-            titolo.setText(datoGenerico);
-        }
-            Log.d("Handler", "Running Mediaplayer");
-        mmr.release();
-        }
-    }
-    private MediaPlayer.OnPreparedListener miolistenermusic =new MediaPlayer.OnPreparedListener() {
-        @Override
-        public void onPrepared(MediaPlayer mp) {
-            mp.getDuration();
-            mp.start();
-        }
-    };
     private BroadcastReceiver mReceiver = new BroadcastReceiver() {
 
         @Override
@@ -273,20 +229,11 @@ private void suonaOnline(){
             if(   spinner_elenco_radio.getItemAtPosition(i).toString().equals(vocespinner)){return i;}
         }
         return 0;}
-    private void ricavaIndirizzoAlCambiamentoSpinner(){
-        spinner_elenco_radio.setOnItemSelectedListener(
-                new AdapterView.OnItemSelectedListener() {
-                    public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
 
-                        RADIO_STATION_URL = parent.getItemAtPosition(pos).toString();
+private  void eseguiinBackground(){
 
-                         indirizzoWebRadio.setText(RADIO_STATION_URL);
-                        // System.out.println(item.toString());     //prints the text in spinner item.
-                        suonaOnline();
+        handler.post(LeggiTitoloCanzone.runnableName);
 
-                    }
-                    public void onNothingSelected(AdapterView<?> parent) {
-                    }
-                });
+
     }
 }
