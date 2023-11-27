@@ -75,6 +75,7 @@ public static Runnable runnableName= new Runnable() {
             //call function, do something
             Log.d("Handler", "Running Handler");
            // LeggiTitoloCanzone.ricavaTitoloCanzone();
+
             //handler.postDelayed(runnableName, 2000);//this is the line that makes a runnable repeat itself
 
         }

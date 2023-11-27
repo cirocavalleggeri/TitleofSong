@@ -22,6 +22,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -47,7 +48,10 @@ public class MainActivity extends Activity {
     Handler handler;
     Spinner spinner_elenco_radio;
     TextInputEditText indirizzoWebRadio;
-
+    RicevitoreCanzone ricevitoreCanzone;
+    BroadcastReceiver mReceiver;
+    Button btn_startMusica;
+    Button btn_stoptMusica;
     @Override
     protected void onStop() {
         super.onStop();
@@ -56,9 +60,7 @@ public class MainActivity extends Activity {
          mediaplayer = null;
         }
        */
-        /*if(mReceiver!=null){
-            unregisterReceiver(mReceiver);
-        }*/
+
     }
     @Override
     protected void onDestroy() {
@@ -67,9 +69,9 @@ public class MainActivity extends Activity {
             mediaplayer.release();
             mediaplayer = null;
         }
-      /*  if(mReceiver!=null){
+        if(mReceiver!=null){
             unregisterReceiver(mReceiver);
-        }*/
+        }
 
     }
     @Override
@@ -78,7 +80,9 @@ public class MainActivity extends Activity {
        // ricavaIndirizzoAlCambiamentoSpinner();
         AsyncTask.execute(runnable);
        //registraBroadcastREceiver();
-
+        ricevitoreCanzone=new RicevitoreCanzone(this);
+        if(mReceiver!=null){mReceiver=null;}
+         mReceiver=ricevitoreCanzone.registraBroadcastREceiver();
     }
 
 
@@ -93,6 +97,20 @@ public class MainActivity extends Activity {
         titolo=findViewById(R.id.id_tx_titolo);
         artista=findViewById(R.id.id_tx_artista);
         indirizzoWebRadio=findViewById(R.id.textInputEdit);
+        btn_startMusica=findViewById(R.id.id_btn_start);
+        btn_stoptMusica=findViewById(R.id.id_btn_stop);
+        btn_stoptMusica.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                stopMusica();
+            }
+        });
+        btn_startMusica.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+              startMusica();
+            }
+        });
         mediaplayer=new MediaPlayer();
         inizializzalistaRadio();
         if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.RECORD_AUDIO )!= PackageManager.PERMISSION_GRANTED){
@@ -154,9 +172,7 @@ public class MainActivity extends Activity {
     };
 private void suonaOnline(){
    // inizializzalistaRadio();
-     if(mediaplayer!=null){
-         if(mediaplayer.isPlaying()){mediaplayer.stop();mediaplayer.release();mediaplayer=null;}
-     }else { }
+    stopMusica();
     mediaplayer=new MediaPlayer();
     mediaplayer.setAudioAttributes(
             new AudioAttributes.Builder()
@@ -198,11 +214,18 @@ private void suonaOnline(){
 
     });
     mediaplayer.start();
+
 }
 
+private void stopMusica(){
+    if(mediaplayer!=null){
+        if(mediaplayer.isPlaying()){mediaplayer.stop();mediaplayer.release();mediaplayer=null;}
+    }else { }
+}
 
-
-
+    private void startMusica(){
+        AsyncTask.execute(runnable);
+    }
     private void inizializzalistaRadio()
     {
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
