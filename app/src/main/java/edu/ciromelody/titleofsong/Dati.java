@@ -54,7 +54,6 @@ public class Dati {
           "http://shoutcast.rtl.it:3030/stream/1/",
 
           "Radio Kiss Kiss:",
-          "http://wma08.fluidstream.net:4610/",
           "http://ice07.fluidstream.net:8080/KissKiss.mp3",
 
           "Radio Kiss Kiss Italia:",

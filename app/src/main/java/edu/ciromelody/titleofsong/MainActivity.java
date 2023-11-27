@@ -1,6 +1,8 @@
 package edu.ciromelody.titleofsong;
 
 
+import static java.lang.Thread.sleep;
+
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -31,6 +33,7 @@ import com.google.android.material.textfield.TextInputLayout;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.stream.Stream;
 
 import wseemann.media.FFmpegMediaMetadataRetriever;
 
@@ -44,6 +47,7 @@ public class MainActivity extends Activity {
     Handler handler;
     Spinner spinner_elenco_radio;
     TextInputEditText indirizzoWebRadio;
+
     @Override
     protected void onStop() {
         super.onStop();
@@ -51,10 +55,10 @@ public class MainActivity extends Activity {
          mediaplayer.release();
          mediaplayer = null;
         }
-        if(mReceiver!=null){
+       */
+        /*if(mReceiver!=null){
             unregisterReceiver(mReceiver);
         }*/
-
     }
     @Override
     protected void onDestroy() {
@@ -63,29 +67,20 @@ public class MainActivity extends Activity {
             mediaplayer.release();
             mediaplayer = null;
         }
-        if(mReceiver!=null){
+      /*  if(mReceiver!=null){
             unregisterReceiver(mReceiver);
-        }
+        }*/
 
     }
     @Override
     protected void onResume() {
         super.onResume();
        // ricavaIndirizzoAlCambiamentoSpinner();
-       suonaOnline();
-       registraBroadcastREceiver();
+        AsyncTask.execute(runnable);
+       //registraBroadcastREceiver();
 
     }
 
-    private void registraBroadcastREceiver() {
-        IntentFilter iF = new IntentFilter();
-        iF.addAction("com.android.music.metachanged");
-        iF.addAction("com.android.music.playstatechanged");
-        iF.addAction("com.android.music.playbackcomplete");
-        iF.addAction("com.android.music.queuechanged");
-
-        registerReceiver(mReceiver, iF);
-    }
 
     public MainActivity() {
         super();
@@ -98,6 +93,7 @@ public class MainActivity extends Activity {
         titolo=findViewById(R.id.id_tx_titolo);
         artista=findViewById(R.id.id_tx_artista);
         indirizzoWebRadio=findViewById(R.id.textInputEdit);
+        mediaplayer=new MediaPlayer();
         inizializzalistaRadio();
         if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.RECORD_AUDIO )!= PackageManager.PERMISSION_GRANTED){
             ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.RECORD_AUDIO}, MY_PERMISSIONS_RECORD_AUDIO);
@@ -109,7 +105,7 @@ public class MainActivity extends Activity {
                     RADIO_STATION_URL = parentView.getItemAtPosition(position+1).toString();
 
                     indirizzoWebRadio.setText(RADIO_STATION_URL);
-                    suonaOnline();
+                    AsyncTask.execute(runnable);
                 }
 
                 @Override
@@ -120,7 +116,7 @@ public class MainActivity extends Activity {
             });
 
 
-            registraBroadcastREceiver();
+
 
 
              handler = new Handler();
@@ -133,11 +129,17 @@ public class MainActivity extends Activity {
             public void run() {
                 //your action
                 //LeggiTitoloCanzone.titleOfSong();
+                try {
+                    sleep(1000);
+                    suonaOnline();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
             }
         };
         //
         //
-        AsyncTask.execute(runnable);
+        //AsyncTask.execute(runnable);
 
        // ricavaIndirizzoAlCambiamentoSpinner();
 
@@ -152,20 +154,23 @@ public class MainActivity extends Activity {
     };
 private void suonaOnline(){
    // inizializzalistaRadio();
-
-        mediaplayer=new MediaPlayer();
+     if(mediaplayer!=null){
+         if(mediaplayer.isPlaying()){mediaplayer.stop();mediaplayer.release();mediaplayer=null;}
+     }else { }
+    mediaplayer=new MediaPlayer();
     mediaplayer.setAudioAttributes(
             new AudioAttributes.Builder()
                     .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
                     .setUsage(AudioAttributes.USAGE_MEDIA)
                     .build()
     );
-    mediaplayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+
+   mediaplayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
     try {
 
-        mediaplayer.setDataSource(RADIO_STATION_URL);
-        //mediaplayer.prepare();
-        mediaplayer.setOnPreparedListener(miolistenermusic);
+         mediaplayer.setDataSource(RADIO_STATION_URL);
+        mediaplayer.prepare();
+        //mediaplayer.setOnPreparedListener(miolistenermusic);
         mediaplayer.prepareAsync();
     } catch (IllegalArgumentException e) {
         // TODO Auto-generated catch block
@@ -183,7 +188,8 @@ private void suonaOnline(){
     mediaplayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
         @Override
         public void onPrepared(MediaPlayer mp) {
-            if(mp.isPlaying()){mp.stop();}
+
+
             mp.start();
 
            // LeggiTitoloCanzone.ricavaTitoloCanzone();
@@ -191,24 +197,10 @@ private void suonaOnline(){
 
 
     });
-    //mediaplayer.start();
+    mediaplayer.start();
 }
 
-    private BroadcastReceiver mReceiver = new BroadcastReceiver() {
 
-        @Override
-        public void onReceive(Context context, Intent intent)
-        {
-            String action = intent.getAction();
-            String cmd = intent.getStringExtra("command");
-            Log.d("mIntentReceiver.onReceive ", action + " / " + cmd);
-            String artist = intent.getStringExtra("artist");
-            String album = intent.getStringExtra("album");
-            String track = intent.getStringExtra("track");
-            Log.d("Music",artist+":"+album+":"+track);
-            artista.setText(artist);
-        }
-    };
 
 
     private void inizializzalistaRadio()
