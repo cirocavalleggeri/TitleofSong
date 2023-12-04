@@ -12,6 +12,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.media.MediaMetadataRetriever;
@@ -57,10 +58,13 @@ public class MainActivity extends Activity {
     BroadcastReceiver mReceiver;
     Button btn_startMusica;
     Button btn_stoptMusica;
+    Button btn_avanti;
+    Button btn_indietro;
     Button btn_startregistraMusica;
     Button btn_stopregistraMusica;
     TraduciInTesto traduciInTesto;
     RecordWaveTask registraAudio;
+    int posizioneRadio;
     @Override
     protected void onStop() {
         super.onStop();
@@ -110,6 +114,8 @@ public class MainActivity extends Activity {
         indirizzoWebRadio=findViewById(R.id.textInputEdit);
         btn_startMusica=findViewById(R.id.id_btn_start);
         btn_stoptMusica=findViewById(R.id.id_btn_stop);
+        btn_avanti=findViewById(R.id.id_btn_avanti);
+        btn_indietro=findViewById(R.id.id_btn_indietro);
         btn_startregistraMusica=findViewById(R.id.id_btn_registra);
         btn_stopregistraMusica=findViewById(R.id.id_btn_stopregistra);
         btn_stoptMusica.setOnClickListener(new View.OnClickListener() {
@@ -124,11 +130,36 @@ public class MainActivity extends Activity {
               startMusica();
             }
         });
+        btn_indietro.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(posizioneRadio<2){posizioneRadio=0;}
+                posizioneRadio=posizioneRadio-1;
+                spinner_elenco_radio.setSelection(posizioneRadio-2);
+                RADIO_STATION_URL =spinner_elenco_radio.getItemAtPosition(posizioneRadio).toString();
+                indirizzoWebRadio.setText(RADIO_STATION_URL);
+                AsyncTask.execute(runnable);
+            }
+
+
+        });
+        btn_avanti.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(posizioneRadio>vettoreStazioniRadio.length-1){posizioneRadio=0;}
+                   posizioneRadio=posizioneRadio+1;
+                  spinner_elenco_radio.setSelection(posizioneRadio);
+                  RADIO_STATION_URL =spinner_elenco_radio.getItemAtPosition(posizioneRadio+1).toString();
+                  indirizzoWebRadio.setText(RADIO_STATION_URL);
+                  AsyncTask.execute(runnable);
+            }
+        });
         btn_startregistraMusica.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
                 registraAudio.launchTask();
+                btn_stopregistraMusica.setBackgroundColor(Color.RED);
              /*    Intent intent= new Intent(this, edu.ciromelody.titleofsong.MainActivityKotlin.class );
                  startActivity(intent);*/
             }
@@ -137,7 +168,7 @@ public class MainActivity extends Activity {
             @Override
             public void onClick(View v) {
                 registraAudio.stopTask();
-
+                btn_stopregistraMusica.setBackgroundColor(Color.GRAY);
             }
         });
         mediaplayer=new MediaPlayer();
@@ -150,7 +181,7 @@ public class MainActivity extends Activity {
                 public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
                     // your code here
 
-                    int posizioneRadio=position;
+                     posizioneRadio=position;
                     String analisiStringa= parentView.getItemAtPosition(posizioneRadio).toString();
                     if(analisiStringa.contains("http")){
 
@@ -206,6 +237,8 @@ public class MainActivity extends Activity {
         traduciInTesto=new TraduciInTesto(this);
 
     }
+
+
 
     private MediaPlayer.OnPreparedListener miolistenermusic =new MediaPlayer.OnPreparedListener() {
         @Override

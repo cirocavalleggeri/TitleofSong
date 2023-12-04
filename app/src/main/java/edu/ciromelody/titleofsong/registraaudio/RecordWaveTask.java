@@ -110,7 +110,8 @@ public class RecordWaveTask extends AsyncTask<File, Void, Object[]> {
         }
         String currentDateString = new SimpleDateFormat("yyyyMMdd").format(new Date());
         String currentTimeString = new SimpleDateFormat("HH:mm").format(new Date());
-        String filename = "recording_" +  currentDateString + ".wav";
+        String currentTimeSecondString = new SimpleDateFormat("HHmmss").format(new Date());
+        String filename = "recording_" +  currentDateString +"_"+currentTimeSecondString+ ".wav";
         File newFile = new File(directory, filename);
         if(!newFile.exists()){
             try {
