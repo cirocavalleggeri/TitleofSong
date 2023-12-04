@@ -68,6 +68,38 @@
             android:gravity="center"
             android:orientation="horizontal">
             <Button
+                android:id="@+id/id_btn_registra"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginEnd="16dp"
+                android:text="registra">
+
+            </Button>
+
+            <Button
+                android:id="@+id/id_btn_stopregistra"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="16dp"
+                android:text="Stop registra">
+
+            </Button>
+        </LinearLayout>
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="bottom|center"
+        android:orientation="vertical"
+        android:layout_weight="1">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="horizontal">
+            <Button
                 android:id="@+id/id_btn_start"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

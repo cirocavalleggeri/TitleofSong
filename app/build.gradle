@@ -42,4 +42,8 @@ dependencies {
     implementation 'com.github.wseemann:FFmpegMediaMetadataRetriever-core:1.0.19'
     implementation 'com.github.wseemann:FFmpegMediaMetadataRetriever-native:1.0.19'
     //fine titolo
+
+
+   /* implementation 'com.google.cloud:google-cloud-speech:0.30.0-alpha'
+    annotationProcessor 'com.google.cloud:google-cloud-speech:0.30.0-alpha'*/
 }
